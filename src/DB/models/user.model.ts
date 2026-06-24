@@ -1,8 +1,10 @@
+//* Importing necessary decorators and functions from NestJS
 import { MongooseModule, Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { GenderEnum, RoleEnum } from 'src/common/enum/user.enum';
 import { HashPassword } from 'src/common/utils/security/hashing.security';
 
+//* User class defines the structure and schema for the User model in the database, including properties such as userName, email, password, age, phone , etc..
 @Schema({
   timestamps: true,
   strictQuery: true,
@@ -46,8 +48,13 @@ export class User {
   profileImage?: string;
 }
 
+//* UserSchema is created using the SchemaFactory to define the schema for the User model
 export const UserSchema = SchemaFactory.createForClass(User);
+
+//* UserDocument type is defined as a hydrated document of the User class
 export type UserDocument = HydratedDocument<User>;
+
+//* UserModel is defined as a Mongoose module for the User schema, with a pre-save hook to hash the password before saving it to the database
 export const UserModel = MongooseModule.forFeatureAsync([
   {
     name: User.name,

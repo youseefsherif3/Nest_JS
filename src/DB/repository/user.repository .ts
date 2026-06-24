@@ -1,12 +1,11 @@
 //* Importing necessary modules and types
 import { Model } from 'mongoose';
-
 import BaseRepository from './base.repository';
 import { User } from '../models/user.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
 
-//* UserRepository class to handle database operations related to the User model
+//* UserRepository class extends the BaseRepository class to provide specific database operations for the User model, allowing for easy extension and reuse in other repositories
 @Injectable()
 class UserRepository extends BaseRepository<User> {
   constructor(@InjectModel(User.name) protected UserModel: Model<User>) {

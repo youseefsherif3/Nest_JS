@@ -1,7 +1,8 @@
-import { Global, Module } from '@nestjs/common';
+//* Importing necessary decorators and classes from NestJS
+import { Module } from '@nestjs/common';
 import { createClient } from 'redis';
 
-
+//* RedisModule class is a NestJS module that provides a Redis client service, allowing other parts of the application to connect to and interact with a Redis database.
 @Module({
   imports: [],
   controllers: [],
@@ -21,6 +22,8 @@ import { createClient } from 'redis';
       },
     },
   ],
-  exports: ["REDIS_SERVICE"],
+  exports: ['REDIS_SERVICE'],
 })
+
+//* RedisModule class is exported to be used in other parts of the application, allowing them to inject the Redis client service for database operations.
 export class RedisModule {}

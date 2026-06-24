@@ -1,13 +1,12 @@
-//* Importing necessary modules and initializing the Redis client
+//* Importing necessary decorators and classes from NestJS and other libraries
 import { type RedisClientType } from 'redis';
-import { REDIS_URL } from '../../config/config.service';
 import { Types } from 'mongoose';
 import { Inject, Injectable } from '@nestjs/common';
 
-//* RedisService class to handle interactions with the Redis server
+//* RedisService class is a NestJS service that provides methods to interact with a Redis database, including setting, getting, deleting keys, managing FCM tokens and socket IDs for users, and handling OTPs.
 @Injectable()
 class RedisService {
-  //* Constructor to initialize the Redis client with the provided Redis URL from the configuration
+  //* Injecting the Redis client into the service using the @Inject decorator, allowing the service to use the Redis client for database operations
   constructor(
     @Inject('REDIS_SERVICE') private readonly client: RedisClientType,
   ) {}
@@ -18,17 +17,19 @@ class RedisService {
     console.log('Connection To Redis Successfully ');
   }
 
-  //* Method to handle errors emitted by the Redis client and log them to the console
+  //* Method to handle errors from the Redis client and log them to the console
   handleError() {
     this.client.on('error', (err) => {
       console.error('Redis Client Error', err);
     });
   }
 
+  //* Method to generate a Redis key for storing the maximum OTP attempts for a specific email
   max_OTP_Key = (email: string) => {
     return `max_otp::${email}`;
   };
 
+  //* Method to generate a Redis key for storing the block status of OTP attempts for a specific email
   block_OTP_Key = (email: string) => {
     return `block_otp::${email}`;
   };

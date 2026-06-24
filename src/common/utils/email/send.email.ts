@@ -1,12 +1,11 @@
 //* Importing necessary modules and configurations
-import nodemailer from "nodemailer";
-import { EMAIL, PASSWORD } from "../../../config/config.service";
-import Mail from "nodemailer/lib/mailer";
+import nodemailer from 'nodemailer';
+import Mail from 'nodemailer/lib/mailer';
 
 //* Function to send an email using nodemailer with Gmail service and provided mail options
 export const sendEmail = async (mailOptions: Mail.Options) => {
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    service: 'gmail',
     auth: {
       user: process.env.EMAIL,
       pass: process.env.PASSWORD,
@@ -18,7 +17,7 @@ export const sendEmail = async (mailOptions: Mail.Options) => {
     ...mailOptions,
   });
 
-  console.log("Message sent:", info.messageId);
+  console.log('Message sent:', info.messageId);
 
   return info.accepted.length > 0 ? true : false;
 };

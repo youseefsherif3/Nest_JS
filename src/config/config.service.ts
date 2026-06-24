@@ -26,7 +26,8 @@ export const REDIS_URL: string = process.env.REDIS_URL!;
 export const TOKEN_SECRET_KEY: string = process.env.TOKEN_SECRET_KEY!;
 
 //* Exporting the REFRESH_TOKEN_SECRET_KEY variable from the environment configuration for use in signing Refresh Tokens
-export const REFRESH_TOKEN_SECRET_KEY: string = process.env.REFRESH_TOKEN_SECRET_KEY!;
+export const REFRESH_TOKEN_SECRET_KEY: string =
+  process.env.REFRESH_TOKEN_SECRET_KEY!;
 
 //* Exporting the WEB_CLIENT_ID variable from the environment configuration for use in Google Sign-In authentication
 export const WEB_CLIENT_ID: string = process.env.WEB_CLIENT_ID!;

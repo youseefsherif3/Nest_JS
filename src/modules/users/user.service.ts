@@ -1,21 +1,35 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/createUser.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { User } from 'src/DB/models/user.model';
+//* Importing necessary modules and decorators from NestJS
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
+import { CreateUserDto, SignInDto } from './dto/createUser.dto';
 import UserRepository from 'src/DB/repository/user.repository ';
-import { HashPassword } from 'src/common/utils/security/hashing.security';
+import {
+  ComparePassword,
+  HashPassword,
+} from 'src/common/utils/security/hashing.security';
 import { EncryptData } from 'src/common/utils/security/encrypt.security';
 import { generateOTP, sendEmail } from 'src/common/utils/email/send.email';
 import { Eventemitter } from 'src/common/utils/email/email.events';
 import { EmailEnum } from 'src/common/enum/user.enum';
 import { emailTemplate } from 'src/common/utils/email/email.template';
 import RedisService from 'src/common/service/redis.service';
+import { randomUUID } from 'node:crypto';
+import TokenService from 'src/common/service/token.service';
 
+//* UserService class handles user-related business logic, including user creation, sign-in, and retrieval of all users
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository , private readonly redisService: RedisService) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly redisService: RedisService,
+    private readonly tokenService: TokenService,
+  ) {}
 
+  //* createUser method handles the creation of a new user, including email verification and OTP generation
   async createUser(body: CreateUserDto): Promise<any> {
     const {
       userName,
@@ -51,11 +65,11 @@ export class UserService {
         html: emailTemplate(OTP, userName),
       });
 
-        await this.redisService.setMethod({
-          key: this.redisService.OTP_Key(email),
-          value: HashPassword({ plainText: OTP.toString() }),
-          ttl: 10 * 60,
-        });
+      await this.redisService.setMethod({
+        key: this.redisService.OTP_Key(email),
+        value: HashPassword({ plainText: OTP.toString() }),
+        ttl: 10 * 60,
+      });
     });
 
     const newUser = await this.userRepository.create({
@@ -65,7 +79,7 @@ export class UserService {
       gender,
       role,
       profileImage,
-      phone: EncryptData(phone!),
+      phone: EncryptData(phone),
       address,
       password,
     });
@@ -73,6 +87,55 @@ export class UserService {
     return newUser;
   }
 
+  //* signIn method handles user sign-in, including password verification and JWT token generation for authentication
+  async signIn(body: SignInDto) {
+    const { email, password }: SignInDto = body;
+    const user = await this.userRepository.findOne({ filter: { email } });
+
+    if (!user) {
+      throw new BadRequestException('User not found Or Invalid email');
+    }
+
+    if (!ComparePassword({ plainText: password, cipherText: user.password })) {
+      throw new BadRequestException('Invalid password');
+    }
+
+    const uuid = randomUUID();
+
+    const token = await this.tokenService.generateToken({
+      payload: {
+        id: user._id,
+        email: user.email,
+      },
+      options: {
+        secret:
+          user.role === 'admin'
+            ? process.env.ACCESS_TOKEN_SECRET_KEY_ADMIN
+            : process.env.ACCESS_TOKEN_SECRET_KEY_USER,
+        expiresIn: '1h',
+        jwtid: uuid,
+      },
+    });
+
+    const refreshToken = await this.tokenService.generateToken({
+      payload: {
+        id: user._id,
+        email: user.email,
+      },
+      options: {
+        secret:
+          user.role === 'admin'
+            ? process.env.REFRESH_TOKEN_SECRET_KEY_ADMIN
+            : process.env.REFRESH_TOKEN_SECRET_KEY_USER,
+        expiresIn: '7d',
+        jwtid: uuid,
+      },
+    });
+
+    return { user, token, refreshToken };
+  }
+
+  //* getAllUsers method retrieves all users from the user repository
   async getAllUsers() {
     return this.userRepository.find();
   }

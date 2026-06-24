@@ -1,3 +1,4 @@
+//* Importing necessary decorators and validation functions
 import {
   IsEmail,
   IsIn,
@@ -9,11 +10,9 @@ import {
   IsStrongPassword,
   Length,
   registerDecorator,
-  Validate,
   ValidateIf,
   ValidationOptions,
 } from 'class-validator';
-
 import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
@@ -21,6 +20,7 @@ import {
 } from 'class-validator';
 import { GenderEnum, RoleEnum } from 'src/common/enum/user.enum';
 
+//* matchValue class is a custom validator that checks if the value of a property matches the value of another property in the same object
 @ValidatorConstraint({ name: 'matchValue', async: false })
 export class matchValue implements ValidatorConstraintInterface {
   validate(value: string, args: ValidationArguments) {
@@ -32,11 +32,12 @@ export class matchValue implements ValidatorConstraintInterface {
   }
 }
 
+//* IsMatch function is a decorator that applies the matchValue validator to a property, ensuring that it matches the value of another specified property
 export function IsMatch(
   constraints: string[],
   validationOptions?: ValidationOptions,
 ) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,
@@ -47,6 +48,7 @@ export function IsMatch(
   };
 }
 
+//* CreateUserDto class defines the structure and validation rules for user creation data transfer object (DTO)
 export class CreateUserDto {
   @Length(3, 20)
   @IsNotEmpty()
@@ -99,4 +101,15 @@ export class CreateUserDto {
   @IsOptional()
   @IsNotEmpty()
   profileImage: string;
+}
+
+//* SignInDto class defines the structure and validation rules for user sign-in data transfer object (DTO) */
+export class SignInDto {
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  @IsStrongPassword()
+  password: string;
 }

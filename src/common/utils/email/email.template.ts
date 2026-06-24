@@ -1,4 +1,4 @@
-export const emailTemplate = (otp : number, userName : string) => {
+export const emailTemplate = (otp: number, userName: string) => {
   return `
     <!DOCTYPE html>
 <html lang="en">

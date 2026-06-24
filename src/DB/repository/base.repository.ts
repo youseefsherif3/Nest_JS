@@ -1,4 +1,4 @@
-//* Importing necessary modules and types
+//* Importing necessary types and classes from Mongoose for database operations
 import {
   DeleteResult,
   HydratedDocument,
@@ -9,9 +9,9 @@ import {
   QueryOptions,
   Types,
   UpdateQuery,
-} from "mongoose";
+} from 'mongoose';
 
-//* BaseRepository class to provide common database operations for different models
+//* BaseRepository class is an abstract class that provides common database operations for a specific model, allowing for easy extension and reuse in other repositories
 abstract class BaseRepository<TDocument> {
   constructor(protected readonly model: Model<TDocument>) {}
 
@@ -27,6 +27,7 @@ abstract class BaseRepository<TDocument> {
     return this.model.findById(id);
   }
 
+  //* Method to find documents based on a filter, projection, and options
   async find({
     filter,
     projection,

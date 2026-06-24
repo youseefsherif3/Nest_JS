@@ -2,8 +2,8 @@
 import crypto from 'node:crypto';
 
 //* Creating a Buffer from the encryption key
-const key = Buffer.from("12345678912345678912345678912345");
-const IV_LENGTH = 16; 
+const key = Buffer.from('12345678912345678912345678912345');
+const IV_LENGTH = 16;
 
 //* Function to encrypt a given text using AES-256 encryption algorithm
 export function EncryptData(text: string) {
@@ -17,9 +17,9 @@ export function EncryptData(text: string) {
 //* Function to decrypt a given encrypted text using AES-256 decryption algorithm
 export function DecryptData(text: string) {
   const [IVHex, encryptedText] = text.split(':');
-  const iv = Buffer.from(IVHex!, 'hex');
+  const iv = Buffer.from(IVHex, 'hex');
   const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-  let decrypted = decipher.update(encryptedText!, 'hex', 'utf8');
+  let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
   decrypted += decipher.final('utf8');
   return decrypted;
 }
