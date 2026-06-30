@@ -19,6 +19,8 @@ import { emailTemplate } from 'src/common/utils/email/email.template';
 import RedisService from 'src/common/service/redis.service';
 import { randomUUID } from 'node:crypto';
 import TokenService from 'src/common/service/token.service';
+import { type UserDocument } from 'src/DB/models/user.model';
+import { S3Service } from 'src/common/service/s3.service';
 
 //* UserService class handles user-related business logic, including user creation, sign-in, and retrieval of all users
 @Injectable()
@@ -27,6 +29,7 @@ export class UserService {
     private readonly userRepository: UserRepository,
     private readonly redisService: RedisService,
     private readonly tokenService: TokenService,
+    private readonly s3Service: S3Service,
   ) {}
 
   //* createUser method handles the creation of a new user, including email verification and OTP generation
@@ -138,5 +141,17 @@ export class UserService {
   //* getAllUsers method retrieves all users from the user repository
   async getAllUsers() {
     return this.userRepository.find();
+  }
+
+  async getProfile(user: UserDocument) {
+    return { user };
+  }
+
+  async uploadProfileImage(file: Express.Multer.File) {
+    const key = await this.s3Service.uploadFile({
+      file,
+      path: 'profile-images',
+    });
+    return { key };
   }
 }

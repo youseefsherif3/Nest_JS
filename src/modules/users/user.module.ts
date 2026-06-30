@@ -8,6 +8,10 @@ import RedisService from 'src/common/service/redis.service';
 import { RedisModule } from 'src/common/redis/redis.module';
 import TokenService from 'src/common/service/token.service';
 import { JwtService } from '@nestjs/jwt';
+import { MulterModule } from '@nestjs/platform-express';
+import multer from 'multer';
+import { Request } from 'express';
+import { S3Service } from 'src/common/service/s3.service';
 
 //* UserModule class is a NestJS module that encapsulates user-related functionality, including controllers, services, and repositories
 @Module({
@@ -19,6 +23,7 @@ import { JwtService } from '@nestjs/jwt';
     UserRepository,
     TokenService,
     JwtService,
+    S3Service,
   ],
   exports: [],
 })

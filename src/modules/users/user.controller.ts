@@ -5,16 +5,30 @@ import {
   Get,
   Post,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto, SignInDto } from './dto/createUser.dto';
 import { AuthenticationGuard } from 'src/common/guards/authentication.guard';
-import { roleType, TokenType } from 'src/common/decorators/auth.decorator';
+import {
+  Auth,
+  roleType,
+  TokenType,
+} from 'src/common/decorators/auth.decorator';
 import { AuthorizationGuard } from 'src/common/guards/authorization.guard';
 import { RoleEnum } from 'src/common/enum/user.enum';
+import { User } from 'src/common/decorators/user.decorator';
+import { type UserDocument } from 'src/DB/models/user.model';
+import { TokenTypeEnum } from 'src/common/enum/token.enum';
+import { FileInterceptor } from '@nestjs/platform-express';
+import multer from 'multer';
+import { Request } from 'express';
+import { multerCloud } from 'src/common/utils/multer.utils';
+import { Store_Enum } from 'src/common/enum/multer.enum';
 
 //* UserController class handles user-related HTTP requests and routes
 @Controller('users')
@@ -30,9 +44,10 @@ export class UserController {
 
   //* getAllUsers method handles the GET request to retrieve all users
   @Get()
-  @TokenType() //* Specifies the type of token required for this route (access token)
-  @roleType([RoleEnum.user]) //* Specifies the required user role for this route (user role)
-  @UseGuards(AuthenticationGuard, AuthorizationGuard) //* Applies authentication and authorization guards to protect this route
+  @Auth({
+    token_Type_Key: TokenTypeEnum.access_token,
+    role_Type_Key: [RoleEnum.user],
+  })
   getAllUsers(@Req() req: any) {
     return this.userService.getAllUsers();
   }
@@ -41,5 +56,20 @@ export class UserController {
   @Post('signIn')
   signIn(@Body() body: SignInDto): object {
     return this.userService.signIn(body);
+  }
+
+  @Get('profile')
+  @Auth({
+    token_Type_Key: TokenTypeEnum.access_token,
+    role_Type_Key: [RoleEnum.user],
+  })
+  getProfile(@User() user: UserDocument) {
+    return this.userService.getProfile(user);
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('attachment', multerCloud()))
+  uploadProfileImage(@UploadedFile() file: Express.Multer.File) {
+    return this.userService.uploadProfileImage(file);
   }
 }
