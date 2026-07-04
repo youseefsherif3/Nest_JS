@@ -47,6 +47,9 @@ export class Brand {
 
   @Prop({ type: Date })
   deletedAt: Date;
+
+  @Prop({ type: Date })
+  restoredAt: Date;
 }
 
 //* Brand schema factory creation
@@ -60,6 +63,30 @@ BrandSchema.pre(['findOneAndUpdate', 'updateOne'], function () {
       replacement: '-',
       lower: true,
       trim: true,
+    });
+  }
+});
+
+//* Handle Soft Delete by excluding documents with deletedAt field set
+BrandSchema.pre(['updateOne', 'findOneAndUpdate'], function () {
+  const update = this.getUpdate() as UpdateQuery<Brand>;
+
+  if (update.deletedAt) {
+    this.setUpdate({
+      ...update,
+      $unset: { restoredAt: 1 },
+    });
+  }
+
+  if (update.restoredAt) {
+    this.setUpdate({
+      ...update,
+      $unset: { deletedAt: 1 },
+    });
+
+    this.setQuery({
+      ...this.getQuery(),
+      deletedAt: { $exists: true },
     });
   }
 });

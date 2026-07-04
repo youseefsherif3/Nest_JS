@@ -34,6 +34,7 @@ export class IdDto {
   id: Types.ObjectId;
 }
 
+//* Defining a Data Transfer Object (DTO) class for querying brands with validation rules
 export class QueryBrandDto {
   @IsNotEmpty()
   @IsNumber()
@@ -52,4 +53,11 @@ export class QueryBrandDto {
   @IsOptional()
   @IsString()
   search?: string;
+}
+
+export class FreezeBrandDto { 
+
+  @IsNotEmpty()
+  @IsString()
+  flag : string;
 }

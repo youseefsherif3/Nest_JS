@@ -108,12 +108,63 @@ export class BrandService {
 
   //* The getBrandById method retrieves a brand by its ID
   async getBrandById(id: Types.ObjectId) {
-    const brand = await this.brandRepository.findById(id);
+    const brand = await this.brandRepository.findOne({
+      filter: { _id: id, deletedAt: { $exists: false } },
+    });
 
     if (!brand) {
-      throw new ConflictException('Brand not found');
+      throw new ConflictException(
+        'Brand not found check the id or it may be deleted',
+      );
     }
 
     return brand;
+  }
+
+  //* The soft deleteBrand method handles the soft deletion of a brand by its ID
+  async freezeBrand(id: Types.ObjectId, user: UserDocument) {
+    const brand = await this.brandRepository.findOneAndUpdate({
+      filter: { _id: id, createdBy: user._id, deletedAt: { $exists: false } },
+      update: { deletedAt: new Date(), deletedBy: user._id },
+    });
+
+    if (!brand) {
+      throw new ConflictException('Brand not found or you are not authorized');
+    }
+
+    return {
+      message: 'Brand frozen successfully you can unfreeze it till 30 days',
+    };
+  }
+
+  //* The restoreBrand method handles the restoration of a soft-deleted brand by its ID
+  async restoreBrand(id: Types.ObjectId, user: UserDocument) {
+    const brand = await this.brandRepository.findOneAndUpdate({
+      filter: { _id: id, deletedAt: { $exists: true }, deletedBy: user._id },
+      update: { restoredAt: new Date(), updatedBy: user._id },
+    });
+
+    if (!brand) {
+      throw new ConflictException('Brand not found or you are not authorized');
+    }
+
+    return {
+      message: 'Brand restored successfully',
+    };
+  }
+
+  //* The deleteBrand method handles the permanent deletion of a brand by its ID
+  async deleteBrand(id: Types.ObjectId, user: UserDocument) {
+    const brand = await this.brandRepository.findOneAndDelete({
+      filter: { _id: id, deletedAt: { $exists: true }, deletedBy: user._id },
+    });
+
+    if (!brand) {
+      throw new ConflictException('Brand not found or you are not authorized');
+    }
+
+    return {
+      message: 'Brand deleted successfully',
+    };
   }
 }

@@ -2,6 +2,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -21,6 +22,7 @@ import { User } from 'src/common/decorators/user.decorator';
 import type { UserDocument } from 'src/DB/models/user.model';
 import {
   CreateBrandDto,
+  FreezeBrandDto,
   IdDto,
   QueryBrandDto,
   UpdateBrandDto,
@@ -70,5 +72,35 @@ export class BrandController {
   @Get(':id')
   getBrandById(@Param() params: IdDto) {
     return this.brandService.getBrandById(params.id);
+  }
+
+  //* The freezeBrand method handles the soft deletion of a brand by its ID
+  @Delete('freeze/:id')
+  @Auth({
+    token_Type_Key: TokenTypeEnum.access_token,
+    role_Type_Key: [RoleEnum.admin],
+  })
+  freezeBrand(@Param() params: IdDto, @User() user: UserDocument) {
+    return this.brandService.freezeBrand(params.id, user);
+  }
+
+  //* The restoreBrand method handles the restoration of all soft-deleted brands
+  @Patch('restore')
+  @Auth({
+    token_Type_Key: TokenTypeEnum.access_token,
+    role_Type_Key: [RoleEnum.admin],
+  })
+  restoreBrand(@Param() params: IdDto, @User() user: UserDocument) {
+    return this.brandService.restoreBrand(params.id, user);
+  }
+
+  //* The deleteBrand method handles the permanent deletion of a brand by its ID
+  @Delete('delete/:id')
+  @Auth({
+    token_Type_Key: TokenTypeEnum.access_token,
+    role_Type_Key: [RoleEnum.admin],
+  })
+  deleteBrand(@Param() params: IdDto, @User() user: UserDocument) {
+    return this.brandService.deleteBrand(params.id, user);
   }
 }
