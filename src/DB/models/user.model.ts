@@ -46,6 +46,9 @@ export class User {
 
   @Prop({ type: String, trim: true })
   profileImage?: string;
+
+  @Prop({ type: Boolean, default: false })
+  confirmed?: boolean;
 }
 
 //* UserSchema is created using the SchemaFactory to define the schema for the User model

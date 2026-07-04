@@ -103,7 +103,7 @@ export class CreateUserDto {
   profileImage: string;
 }
 
-//* SignInDto class defines the structure and validation rules for user sign-in data transfer object (DTO) */
+//* SignInDto class defines the structure and validation rules for user sign-in data transfer object (DTO) 
 export class SignInDto {
   @IsNotEmpty()
   @IsEmail()
@@ -112,4 +112,33 @@ export class SignInDto {
   @IsNotEmpty()
   @IsStrongPassword()
   password: string;
+}
+
+//* ConfirmEmailDto class defines the structure and validation rules for email confirmation
+export class ConfirmEmailDto {
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  otp: string;
+}
+
+//* UpdatePasswordDto class defines the structure and validation rules for updating a user's password
+export class UpdatePasswordDto {
+  @IsNotEmpty()
+  @IsString()
+  currentPassword: string;
+
+  @IsNotEmpty()
+  @IsStrongPassword()
+  newPassword: string;
+
+  @IsNotEmpty()
+  @ValidateIf((data: UpdatePasswordDto) => {
+    return Boolean(data.newPassword);
+  })
+  @IsMatch(['newPassword'], { message: 'confirmNewPassword must match newPassword' })
+  confirmNewPassword: string
 }

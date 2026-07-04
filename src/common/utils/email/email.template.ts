@@ -5,13 +5,13 @@ export const emailTemplate = (otp: number, userName: string) => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Your Social Media Account</title>
+    <title>Verify Your Shopping Account</title>
     <style>
         body {
             margin: 0;
             padding: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 45%, #f97316 100%);
         }
         .container {
             padding: 40px 20px;
@@ -29,7 +29,7 @@ export const emailTemplate = (otp: number, userName: string) => {
             overflow: hidden;
         }
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #111827 0%, #ea580c 100%);
             padding: 40px 30px;
             text-align: center;
         }
@@ -57,8 +57,8 @@ export const emailTemplate = (otp: number, userName: string) => {
             margin: 0 0 30px 0;
         }
         .otp-box {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-            border: 2px solid #667eea;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.1) 0%, rgba(17, 24, 39, 0.06) 100%);
+            border: 2px solid #f97316;
             border-radius: 8px;
             padding: 30px;
             text-align: center;
@@ -76,7 +76,7 @@ export const emailTemplate = (otp: number, userName: string) => {
             font-family: 'Courier New', monospace;
             font-size: 48px;
             font-weight: 700;
-            color: #667eea;
+            color: #ea580c;
             letter-spacing: 8px;
             margin: 0;
             text-align: center;
@@ -109,7 +109,7 @@ export const emailTemplate = (otp: number, userName: string) => {
             margin: 0;
         }
         .footer-link {
-            color: #667eea;
+            color: #ea580c;
             text-decoration: none;
             font-weight: 600;
         }
@@ -124,24 +124,24 @@ export const emailTemplate = (otp: number, userName: string) => {
             <!-- Header -->
             <tr>
                 <td class="header" align="center">
-                    <h1>✨ Social Connect</h1>
+                    <h1>🛍️ ShopCart</h1>
                 </td>
             </tr>
 
             <!-- Main Content -->
             <tr>
                 <td class="content" align="center">
-                    <p class="greeting">Welcome, ${userName}! 👋</p>
+                    <p class="greeting">Welcome to ShopCart, ${userName}! 👋</p>
                     
                     <p class="message">
-                        We're excited to have you join our community! To complete your account setup and secure your profile, please verify your email address using the code below.
+                        Thanks for joining our store. To complete your account setup and start shopping securely, please verify your email address using the code below.
                     </p>
 
                     <!-- OTP Box -->
                     <div class="otp-box">
-                        <span class="otp-label">Your Verification Code</span>
+                        <span class="otp-label">Your Security Code</span>
                         <p class="otp-code">${otp}</p>
-                        <p class="timer">⏱️ Valid for 10 minutes</p>
+                        <p class="timer">⏱️ Valid for 10 minutes during sign up</p>
                     </div>
 
                     <!-- Security Notice -->
@@ -150,7 +150,7 @@ export const emailTemplate = (otp: number, userName: string) => {
                     </div>
 
                     <p class="message" style="margin-bottom: 10px;">
-                        Didn't request this code? No worries! You can safely ignore this email if you didn't try to create an account.
+                        Didn't request this code? You can safely ignore this email if you did not create an account with ShopCart.
                     </p>
                 </td>
             </tr>
@@ -159,10 +159,10 @@ export const emailTemplate = (otp: number, userName: string) => {
             <tr>
                 <td class="footer" align="center">
                     <p class="footer-text">
-                        &copy; 2026 Social Connect. All rights reserved.
+                        &copy; 2026 ShopCart. All rights reserved.
                     </p>
                     <p class="footer-text">
-                        Questions? <a href="mailto:support@socialconnect.app" class="footer-link">Contact our support team</a>
+                        Questions? <a href="mailto:support@shopcart.app" class="footer-link">Contact our support team</a>
                     </p>
                     <p class="footer-text" style="margin-top: 15px; font-size: 11px;">
                         This is an automated message, please don't reply directly to this email.

@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Patch,
   Post,
   Req,
   UploadedFile,
@@ -12,7 +13,12 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto, SignInDto } from './dto/createUser.dto';
+import {
+  ConfirmEmailDto,
+  CreateUserDto,
+  SignInDto,
+  UpdatePasswordDto,
+} from './dto/createUser.dto';
 import { AuthenticationGuard } from 'src/common/guards/authentication.guard';
 import {
   Auth,
@@ -58,6 +64,7 @@ export class UserController {
     return this.userService.signIn(body);
   }
 
+  //* getProfile method handles the GET request to retrieve the profile of the authenticated user
   @Get('profile')
   @Auth({
     token_Type_Key: TokenTypeEnum.access_token,
@@ -67,9 +74,26 @@ export class UserController {
     return this.userService.getProfile(user);
   }
 
+  //* uploadProfileImage method handles the POST request to upload a user's profile image
   @Post('upload')
   @UseInterceptors(FileInterceptor('attachment', multerCloud()))
   uploadProfileImage(@UploadedFile() file: Express.Multer.File) {
     return this.userService.uploadProfileImage(file);
+  }
+
+  //* confirmEmail method handles the PATCH request to confirm a user's email using an OTP
+  @Patch('confirmEmail')
+  confirmEmail(@Body() body: ConfirmEmailDto) {
+    return this.userService.confirmEmail(body);
+  }
+
+  //* updatePassword method handles the PATCH request to update a user's password
+  @Patch('updatePassword')
+  @Auth({
+    token_Type_Key: TokenTypeEnum.access_token,
+    role_Type_Key: [RoleEnum.user],
+  })
+  updatePassword(@Body() body: UpdatePasswordDto, @User() user: UserDocument) {
+    return this.userService.updatePassword(body, user);
   }
 }

@@ -6,6 +6,8 @@ import { UserModule } from './modules/users/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { ConfigModule } from '@nestjs/config';
+import { BrandModule } from './modules/brand/brand.module';
+import { CategoryModule } from './modules/categories/category.module';
 
 //* AppModule class to define the main application module and its dependencies
 @Module({
@@ -27,6 +29,8 @@ import { ConfigModule } from '@nestjs/config';
         return connection;
       },
     }),
+    BrandModule,
+    CategoryModule
   ],
   controllers: [AppController],
   providers: [AppService],

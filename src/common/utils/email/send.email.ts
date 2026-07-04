@@ -13,7 +13,7 @@ export const sendEmail = async (mailOptions: Mail.Options) => {
   });
 
   const info = await transporter.sendMail({
-    from: `Social Media App <${process.env.EMAIL}>`,
+    from: `ShopCart <${process.env.EMAIL}>`,
     ...mailOptions,
   });
 

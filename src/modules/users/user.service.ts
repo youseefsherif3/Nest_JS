@@ -1,3 +1,4 @@
+import { App } from 'supertest/types';
 //* Importing necessary modules and decorators from NestJS
 import {
   BadRequestException,
@@ -5,7 +6,12 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { CreateUserDto, SignInDto } from './dto/createUser.dto';
+import {
+  ConfirmEmailDto,
+  CreateUserDto,
+  SignInDto,
+  UpdatePasswordDto,
+} from './dto/createUser.dto';
 import UserRepository from 'src/DB/repository/user.repository ';
 import {
   ComparePassword,
@@ -14,7 +20,7 @@ import {
 import { EncryptData } from 'src/common/utils/security/encrypt.security';
 import { generateOTP, sendEmail } from 'src/common/utils/email/send.email';
 import { Eventemitter } from 'src/common/utils/email/email.events';
-import { EmailEnum } from 'src/common/enum/user.enum';
+import { EmailEnum, RoleEnum } from 'src/common/enum/user.enum';
 import { emailTemplate } from 'src/common/utils/email/email.template';
 import RedisService from 'src/common/service/redis.service';
 import { randomUUID } from 'node:crypto';
@@ -64,7 +70,7 @@ export class UserService {
     Eventemitter.emit(EmailEnum.verification, async () => {
       await sendEmail({
         to: email,
-        subject: 'Verify Your Email for Social Connect',
+        subject: 'Verify Your Email for ShopCart',
         html: emailTemplate(OTP, userName),
       });
 
@@ -99,6 +105,12 @@ export class UserService {
       throw new BadRequestException('User not found Or Invalid email');
     }
 
+    if (user.confirmed === false) {
+      throw new BadRequestException(
+        'Please confirm your email before signing in',
+      );
+    }
+
     if (!ComparePassword({ plainText: password, cipherText: user.password })) {
       throw new BadRequestException('Invalid password');
     }
@@ -112,7 +124,7 @@ export class UserService {
       },
       options: {
         secret:
-          user.role === 'admin'
+          user.role === RoleEnum.admin
             ? process.env.ACCESS_TOKEN_SECRET_KEY_ADMIN
             : process.env.ACCESS_TOKEN_SECRET_KEY_USER,
         expiresIn: '1h',
@@ -127,7 +139,7 @@ export class UserService {
       },
       options: {
         secret:
-          user.role === 'admin'
+          user.role === RoleEnum.admin
             ? process.env.REFRESH_TOKEN_SECRET_KEY_ADMIN
             : process.env.REFRESH_TOKEN_SECRET_KEY_USER,
         expiresIn: '7d',
@@ -135,7 +147,7 @@ export class UserService {
       },
     });
 
-    return { user, token, refreshToken };
+    return { data: { token, refreshToken } };
   }
 
   //* getAllUsers method retrieves all users from the user repository
@@ -143,10 +155,12 @@ export class UserService {
     return this.userRepository.find();
   }
 
+  //* getProfile method retrieves the profile information of a user based on the provided user document
   async getProfile(user: UserDocument) {
     return { user };
   }
 
+  //* uploadProfileImage method handles the uploading of a user's profile image to an S3 bucket using the S3Service
   async uploadProfileImage(file: Express.Multer.File) {
     const key = await this.s3Service.uploadFile({
       file,
@@ -154,4 +168,60 @@ export class UserService {
     });
     return { key };
   }
+
+  //* confirmEmail method handles the confirmation of a user's email address by verifying the provided OTP
+  async confirmEmail(body: ConfirmEmailDto) {
+    const { email, otp } = body;
+
+    const OTPExists = await this.redisService.getMethod(
+      this.redisService.OTP_Key(email),
+    );
+
+    if (!OTPExists) {
+      throw new BadRequestException('OTP has expired or is invalid');
+    }
+
+    if (!ComparePassword({ plainText: otp, cipherText: OTPExists })) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    const user = await this.userRepository.findOneAndUpdate({
+      filter: { email },
+      update: { confirmed: true },
+      options: { new: true },
+    });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    await this.redisService.deleteMethod(this.redisService.OTP_Key(email));
+
+    return { message: 'Email confirmed successfully' };
+  }
+
+  //* updatePassword method handles the updating of a user's password
+  async updatePassword(body: UpdatePasswordDto, user: UserDocument) {
+    const { currentPassword, newPassword } = body;
+
+    if (
+      !ComparePassword({
+        plainText: currentPassword,
+        cipherText: user.password,
+      })
+    ) {
+      throw new BadRequestException('Current password is incorrect');
+    }
+
+    await this.userRepository.findByIdAndUpdate({
+      id: user._id,
+      update: { password: HashPassword({ plainText: newPassword }) },
+    });
+
+    await user.save();
+
+    return { message: 'Password updated successfully' };
+  }
+
+  
 }
